@@ -89,7 +89,16 @@ npm test         # runs vitest in server/
 
 ## Environment variables
 
-Configure in `server/.env` (copy from `server/.env.example`).
+### Server (`server/.env`)
+
+```
+PORT=3000
+ADMIN_KEY=secret
+DB_PATH=./data/webhooks.db
+MAX_ATTEMPTS=5
+WORKER_INTERVAL_MS=5000
+INFLIGHT_TIMEOUT_MS=600000
+```
 
 | Var                   | Default              | Description                                    |
 | --------------------- | -------------------- | ---------------------------------------------- |
@@ -100,4 +109,48 @@ Configure in `server/.env` (copy from `server/.env.example`).
 | `WORKER_INTERVAL_MS`  | `5000`               | Worker poll interval                           |
 | `INFLIGHT_TIMEOUT_MS` | `600000`             | Stale in-flight reset threshold (10 min)       |
 
-Client env in `client/.env` — set `VITE_ADMIN_KEY` to match `ADMIN_KEY`.
+### Client (`client/.env`)
+
+```
+VITE_ADMIN_KEY=secret
+```
+
+**Note:** `VITE_ADMIN_KEY` must match `ADMIN_KEY` for API authentication to work.
+
+## API Testing (curl examples)
+
+### Create a subscription
+
+curl -X POST http://localhost:3000/api/subscriptions \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"url":"https://httpbin.org/post","event_types":["*"]}'
+
+### List subscriptions
+
+curl http://localhost:3000/api/subscriptions \\
+-H 'x-admin-key: secret'
+
+### Ingest an event
+
+curl -X POST http://localhost:3000/api/events \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"type":"order.created","payload":{"order_id":123,"amount":99.99}}'
+
+### List events (with delivery summary)
+
+curl http://localhost:3000/api/events \\
+-H 'x-admin-key: secret'
+
+### Get event details with delivery attempts
+
+curl http://localhost:3000/api/events/<event_id> \\
+-H 'x-admin-key: secret'
+
+### Retry a dead/failed delivery
+
+curl -X POST http://localhost:3000/api/events/<event_id>/retry \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"attemptId":"<attempt_id>"}'

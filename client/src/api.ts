@@ -1,11 +1,11 @@
-const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY ?? 'secret';
+const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY ?? "secret";
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...options,
     headers: {
-      'content-type': 'application/json',
-      'x-admin-key': ADMIN_KEY,
+      "content-type": "application/json",
+      "x-admin-key": ADMIN_KEY,
       ...options?.headers,
     },
   });
@@ -45,18 +45,27 @@ export interface DeliveryAttempt {
 }
 
 export const api = {
-  getSubscriptions: () => apiFetch<Subscription[]>('/api/subscriptions'),
-  createSubscription: (body: { url: string; secret?: string; event_types: string[] }) =>
-    apiFetch<Subscription>('/api/subscriptions', { method: 'POST', body: JSON.stringify(body) }),
+  getSubscriptions: () => apiFetch<Subscription[]>("/api/subscriptions"),
+  createSubscription: (body: {
+    url: string;
+    secret?: string;
+    event_types: string[];
+  }) =>
+    apiFetch<Subscription>("/api/subscriptions", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   deleteSubscription: (id: string) =>
-    apiFetch<void>(`/api/subscriptions/${id}`, { method: 'DELETE' }),
+    apiFetch<void>(`/api/subscriptions/${id}`, { method: "DELETE" }),
 
-  getEvents: () => apiFetch<WebhookEvent[]>('/api/events'),
+  getEvents: () => apiFetch<WebhookEvent[]>("/api/events"),
   getEvent: (id: string) =>
-    apiFetch<WebhookEvent & { attempts: DeliveryAttempt[] }>(`/api/events/${id}`),
+    apiFetch<WebhookEvent & { attempts: DeliveryAttempt[] }>(
+      `/api/events/${id}`,
+    ),
   retryAttempt: (eventId: string, attemptId: string) =>
     apiFetch<{ queued: boolean }>(`/api/events/${eventId}/retry`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ attemptId }),
     }),
 };

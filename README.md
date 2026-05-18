@@ -74,7 +74,7 @@ npm test         # runs vitest in server/
 
 ### Events List with Delivery Status
 
-![Events](./public/screenshots/Events.png)
+![Events](./public/screenshots/EventsList.png)
 
 ### Event Detail - Delivery Attempts
 

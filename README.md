@@ -64,12 +64,19 @@ npm test         # runs vitest in server/
 
 ## Screenshots
 
-<!-- Add screenshots below -->
-<!-- Example: ![Subscriptions Dashboard](./docs/screenshots/subscriptions.png) -->
-<!-- Example: ![Events List](./docs/screenshots/events.png) -->
-<!-- Example: ![Event Detail with Delivery Attempts](./docs/screenshots/event-detail.png) -->
+<!-- Add your screenshots here -->
 
-_TODO: Add screenshots of the dashboard in action_
+### Subscriptions Dashboard
+
+<!-- ![Subscriptions](./screenshots/subscriptions.png) -->
+
+### Events List with Delivery Status
+
+<!-- ![Events](./screenshots/events.png) -->
+
+### Event Detail - Delivery Attempts
+
+<!-- ![Event Detail](./screenshots/event-detail.png) -->
 
 ## What's incomplete / next steps
 

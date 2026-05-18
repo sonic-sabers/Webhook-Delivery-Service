@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { api, Subscription } from '../api';
 
+const thTd: React.CSSProperties = { padding: '12px 16px', textAlign: 'left' };
+
 export default function Subscriptions() {
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [url, setUrl] = useState('');
   const [secret, setSecret] = useState('');
   const [types, setTypes] = useState('*');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const load = () =>
     api.getSubscriptions().then(setSubs).catch(e => setError(String(e)));
@@ -16,6 +19,7 @@ export default function Subscriptions() {
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       await api.createSubscription({
         url,
@@ -24,58 +28,162 @@ export default function Subscriptions() {
       });
       setUrl(''); setSecret(''); setTypes('*');
       load();
-    } catch (err) { setError(String(err)); }
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const remove = async (id: string) => {
     try {
       await api.deleteSubscription(id);
       load();
-    } catch (err) { setError(String(err)); load(); }
+    } catch (err) {
+      setError(String(err));
+      load();
+    }
   };
 
   return (
     <div>
-      <h2>Subscriptions</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={create} style={{ marginBottom: '1rem' }}>
-        <input
-          placeholder="https://your-server.com/webhook"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-          required
-          style={{ marginRight: 4, width: 280 }}
-        />
-        <input
-          placeholder="Secret (optional)"
-          value={secret}
-          onChange={e => setSecret(e.target.value)}
-          style={{ marginRight: 4 }}
-        />
-        <input
-          placeholder="Event types e.g. order.*, user.created"
-          value={types}
-          onChange={e => setTypes(e.target.value)}
-          style={{ marginRight: 4, width: 280 }}
-        />
-        <button type="submit">Create</button>
-      </form>
-      <table border={1} cellPadding={6}>
-        <thead>
-          <tr><th>ID</th><th>URL</th><th>Event Types</th><th>Created</th><th></th></tr>
-        </thead>
-        <tbody>
-          {subs.map(s => (
-            <tr key={s.id}>
-              <td>{s.id.slice(0, 8)}…</td>
-              <td>{s.url}</td>
-              <td>{s.event_types}</td>
-              <td>{new Date(s.created_at).toLocaleString()}</td>
-              <td><button onClick={() => remove(s.id)}>Disable</button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--foreground)', marginBottom: 4 }}>
+          Subscriptions
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--muted-foreground)' }}>
+          Manage webhook endpoints and event type filters.
+        </p>
+      </div>
+
+      {/* Create card */}
+      <div style={{
+        background: 'var(--card)', border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)', padding: 24, marginBottom: 24,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}>
+        <h2 style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground)', marginBottom: 16 }}>
+          New Subscription
+        </h2>
+
+        {error && (
+          <div style={{
+            background: '#fef2f2', border: '1px solid #fecaca',
+            color: '#dc2626', borderRadius: 'var(--radius)',
+            padding: '8px 12px', marginBottom: 16, fontSize: 13,
+          }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={create} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ flex: '2 1 240px' }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--foreground)', marginBottom: 6 }}>
+              Endpoint URL
+            </label>
+            <input
+              placeholder="https://your-server.com/webhook"
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              required
+            />
+          </div>
+          <div style={{ flex: '1 1 150px' }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--foreground)', marginBottom: 6 }}>
+              Secret <span style={{ color: 'var(--muted-foreground)', fontWeight: 400 }}>(optional)</span>
+            </label>
+            <input
+              placeholder="signing secret"
+              value={secret}
+              onChange={e => setSecret(e.target.value)}
+            />
+          </div>
+          <div style={{ flex: '1 1 150px' }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--foreground)', marginBottom: 6 }}>
+              Event Types
+            </label>
+            <input
+              placeholder="order.*, user.created"
+              value={types}
+              onChange={e => setTypes(e.target.value)}
+            />
+          </div>
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ background: 'var(--primary)', color: 'var(--primary-foreground)', height: 36, whiteSpace: 'nowrap' }}
+            >
+              {loading ? 'Creating…' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Table */}
+      {subs.length === 0 ? (
+        <div style={{
+          border: '1px dashed var(--border)', borderRadius: 'var(--radius)',
+          padding: '48px 0', textAlign: 'center', color: 'var(--muted-foreground)', fontSize: 13,
+        }}>
+          No subscriptions yet. Create one above.
+        </div>
+      ) : (
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)', overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}>
+                {['ID', 'URL', 'Event Types', 'Created', ''].map(h => (
+                  <th key={h} style={{
+                    ...thTd, fontSize: 12, fontWeight: 600,
+                    color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em',
+                  }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {subs.map((s, i) => (
+                <tr key={s.id} style={{ borderBottom: i < subs.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                  <td style={{ ...thTd, fontFamily: 'monospace', fontSize: 12, color: 'var(--muted-foreground)' }}>
+                    {s.id.slice(0, 8)}…
+                  </td>
+                  <td style={{ ...thTd, fontSize: 13, maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {s.url}
+                  </td>
+                  <td style={{ ...thTd }}>
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {JSON.parse(s.event_types).map((t: string) => (
+                        <span key={t} style={{
+                          background: 'var(--secondary)', color: 'var(--secondary-foreground)',
+                          borderRadius: 4, padding: '2px 8px', fontSize: 12, fontWeight: 500,
+                        }}>{t}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td style={{ ...thTd, fontSize: 12, color: 'var(--muted-foreground)', whiteSpace: 'nowrap' }}>
+                    {new Date(s.created_at).toLocaleString()}
+                  </td>
+                  <td style={thTd}>
+                    <button
+                      onClick={() => remove(s.id)}
+                      style={{
+                        background: 'transparent', color: 'var(--destructive)',
+                        border: '1px solid #fecaca', fontSize: 12, padding: '5px 12px',
+                      }}
+                    >
+                      Disable
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

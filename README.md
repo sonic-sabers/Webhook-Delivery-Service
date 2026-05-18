@@ -64,19 +64,21 @@ npm test         # runs vitest in server/
 
 ## Screenshots
 
-<!-- Add your screenshots here -->
-
 ### Subscriptions Dashboard
 
-<!-- ![Subscriptions](./screenshots/subscriptions.png) -->
+![Subscriptions](./public/screenshots/Subscriptions.png)
+
+### Create Subscription Form
+
+![Create Subscription](./public/screenshots/Filled%20Subscriptions.png)
 
 ### Events List with Delivery Status
 
-<!-- ![Events](./screenshots/events.png) -->
+![Events](./public/screenshots/Events.png)
 
 ### Event Detail - Delivery Attempts
 
-<!-- ![Event Detail](./screenshots/event-detail.png) -->
+![Event Detail](./public/screenshots/EventDetails.png)
 
 ## What's incomplete / next steps
 

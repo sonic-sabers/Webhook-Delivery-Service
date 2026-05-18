@@ -27,6 +27,11 @@ export interface WebhookEvent {
   type: string;
   payload: string;
   ingested_at: number;
+  total_attempts: number;
+  delivered: number;
+  failed: number;
+  pending: number;
+  dead: number;
 }
 
 export interface DeliveryAttempt {
@@ -58,7 +63,16 @@ export const api = {
   deleteSubscription: (id: string) =>
     apiFetch<void>(`/api/subscriptions/${id}`, { method: "DELETE" }),
 
-  getEvents: () => apiFetch<WebhookEvent[]>("/api/events"),
+  getEvents: () =>
+    apiFetch<
+      (WebhookEvent & {
+        total_attempts: number;
+        delivered: number;
+        failed: number;
+        pending: number;
+        dead: number;
+      })[]
+    >("/api/events"),
   getEvent: (id: string) =>
     apiFetch<WebhookEvent & { attempts: DeliveryAttempt[] }>(
       `/api/events/${id}`,

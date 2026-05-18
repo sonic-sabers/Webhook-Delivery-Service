@@ -7,7 +7,6 @@ const thTd: React.CSSProperties = { padding: "12px 16px", textAlign: "left" };
 export default function Events() {
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState<number>(0);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(() => {
@@ -24,12 +23,6 @@ export default function Events() {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    if (refreshInterval <= 0) return;
-    const timer = setInterval(load, refreshInterval * 1000);
-    return () => clearInterval(timer);
-  }, [refreshInterval, load]);
 
   return (
     <div>
@@ -63,22 +56,6 @@ export default function Events() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <select
-            value={refreshInterval}
-            onChange={(e) => setRefreshInterval(Number(e.target.value))}
-            style={{
-              padding: "6px 10px",
-              fontSize: 12,
-              borderRadius: 4,
-              border: "1px solid var(--border)",
-            }}
-          >
-            <option value={0}>Auto: Off</option>
-            <option value={5}>Auto: 5s</option>
-            <option value={10}>Auto: 10s</option>
-            <option value={30}>Auto: 30s</option>
-            <option value={60}>Auto: 60s</option>
-          </select>
           <button
             onClick={load}
             disabled={refreshing}
@@ -125,7 +102,7 @@ export default function Events() {
                   background: "var(--muted)",
                 }}
               >
-                {["ID", "Type", "Ingested"].map((h) => (
+                {["ID", "Type", "Deliveries", "Ingested"].map((h) => (
                   <th
                     key={h}
                     style={{
@@ -181,6 +158,76 @@ export default function Events() {
                     >
                       {e.type}
                     </span>
+                  </td>
+                  <td style={thTd}>
+                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                      {e.delivered > 0 && (
+                        <span
+                          style={{
+                            background: "#dcfce7",
+                            color: "#166534",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 11,
+                            fontWeight: 500,
+                          }}
+                        >
+                          ✓ {e.delivered}
+                        </span>
+                      )}
+                      {e.pending > 0 && (
+                        <span
+                          style={{
+                            background: "#fef3c7",
+                            color: "#92400e",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 11,
+                            fontWeight: 500,
+                          }}
+                        >
+                          ⏳ {e.pending}
+                        </span>
+                      )}
+                      {e.failed > 0 && (
+                        <span
+                          style={{
+                            background: "#fee2e2",
+                            color: "#991b1b",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 11,
+                            fontWeight: 500,
+                          }}
+                        >
+                          ⚠ {e.failed}
+                        </span>
+                      )}
+                      {e.dead > 0 && (
+                        <span
+                          style={{
+                            background: "#f3f4f6",
+                            color: "#374151",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 11,
+                            fontWeight: 500,
+                          }}
+                        >
+                          ✕ {e.dead}
+                        </span>
+                      )}
+                      {e.total_attempts === 0 && (
+                        <span
+                          style={{
+                            color: "var(--muted-foreground)",
+                            fontSize: 11,
+                          }}
+                        >
+                          No subscriptions
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td
                     style={{

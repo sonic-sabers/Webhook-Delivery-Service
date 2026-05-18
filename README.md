@@ -62,6 +62,15 @@ npm test         # runs vitest in server/
 - Bounded concurrency: max 5 simultaneous outbound HTTP calls per worker tick via `p-limit`
 - Dashboard: subscriptions list + create, events list, delivery attempt drill-down, manual retry
 
+## Screenshots
+
+<!-- Add screenshots below -->
+<!-- Example: ![Subscriptions Dashboard](./docs/screenshots/subscriptions.png) -->
+<!-- Example: ![Events List](./docs/screenshots/events.png) -->
+<!-- Example: ![Event Detail with Delivery Attempts](./docs/screenshots/event-detail.png) -->
+
+_TODO: Add screenshots of the dashboard in action_
+
 ## What's incomplete / next steps
 
 - No pagination on events list (capped at 50 rows)
@@ -73,13 +82,13 @@ npm test         # runs vitest in server/
 
 Configure in `server/.env` (copy from `server/.env.example`).
 
-| Var | Default | Description |
-|---|---|---|
-| `PORT` | `3000` | HTTP port |
-| `ADMIN_KEY` | `secret` | `X-Admin-Key` header required on all API calls |
-| `DB_PATH` | `./data/webhooks.db` | SQLite file path |
-| `MAX_ATTEMPTS` | `5` | Max delivery attempts before dead |
-| `WORKER_INTERVAL_MS` | `5000` | Worker poll interval |
-| `INFLIGHT_TIMEOUT_MS` | `600000` | Stale in-flight reset threshold (10 min) |
+| Var                   | Default              | Description                                    |
+| --------------------- | -------------------- | ---------------------------------------------- |
+| `PORT`                | `3000`               | HTTP port                                      |
+| `ADMIN_KEY`           | `secret`             | `X-Admin-Key` header required on all API calls |
+| `DB_PATH`             | `./data/webhooks.db` | SQLite file path                               |
+| `MAX_ATTEMPTS`        | `5`                  | Max delivery attempts before dead              |
+| `WORKER_INTERVAL_MS`  | `5000`               | Worker poll interval                           |
+| `INFLIGHT_TIMEOUT_MS` | `600000`             | Stale in-flight reset threshold (10 min)       |
 
 Client env in `client/.env` — set `VITE_ADMIN_KEY` to match `ADMIN_KEY`.

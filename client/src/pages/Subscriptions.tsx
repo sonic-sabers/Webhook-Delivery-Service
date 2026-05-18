@@ -11,7 +11,6 @@ export default function Subscriptions() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState<number>(0);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(() => {
@@ -30,12 +29,6 @@ export default function Subscriptions() {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    if (refreshInterval <= 0) return;
-    const timer = setInterval(load, refreshInterval * 1000);
-    return () => clearInterval(timer);
-  }, [refreshInterval, load]);
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,22 +96,6 @@ export default function Subscriptions() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <select
-            value={refreshInterval}
-            onChange={(e) => setRefreshInterval(Number(e.target.value))}
-            style={{
-              padding: "6px 10px",
-              fontSize: 12,
-              borderRadius: 4,
-              border: "1px solid var(--border)",
-            }}
-          >
-            <option value={0}>Auto: Off</option>
-            <option value={5}>Auto: 5s</option>
-            <option value={10}>Auto: 10s</option>
-            <option value={30}>Auto: 30s</option>
-            <option value={60}>Auto: 60s</option>
-          </select>
           <button
             onClick={load}
             disabled={refreshing}

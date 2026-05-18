@@ -267,21 +267,25 @@ export default function Subscriptions() {
                   background: "var(--muted)",
                 }}
               >
-                {["ID", "URL", "Event Types", "Created", ""].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      ...thTd,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "var(--muted-foreground)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {["ID", "URL", "Event Types", "Created", "Action"].map(
+                  (h, idx) => (
+                    <th
+                      key={h}
+                      style={{
+                        ...thTd,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "var(--muted-foreground)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                        textAlign: idx === 4 ? "right" : "left",
+                        paddingRight: idx === 4 ? 24 : 16,
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
@@ -344,7 +348,7 @@ export default function Subscriptions() {
                   >
                     {new Date(s.created_at).toLocaleString()}
                   </td>
-                  <td style={thTd}>
+                  <td style={{ ...thTd, textAlign: "right", paddingRight: 24 }}>
                     <button
                       onClick={() => remove(s.id)}
                       style={{
@@ -352,7 +356,9 @@ export default function Subscriptions() {
                         color: "var(--destructive)",
                         border: "1px solid #fecaca",
                         fontSize: 12,
-                        padding: "5px 12px",
+                        padding: "6px 12px",
+                        borderRadius: "var(--radius)",
+                        cursor: "pointer",
                       }}
                     >
                       Disable

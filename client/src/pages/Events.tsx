@@ -102,21 +102,25 @@ export default function Events() {
                   background: "var(--muted)",
                 }}
               >
-                {["ID", "Type", "Deliveries", "Ingested", ""].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      ...thTd,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "var(--muted-foreground)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {["ID", "Type", "Deliveries", "Ingested", "Action"].map(
+                  (h, idx) => (
+                    <th
+                      key={h}
+                      style={{
+                        ...thTd,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "var(--muted-foreground)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                        textAlign: idx === 4 ? "right" : "left",
+                        paddingRight: idx === 4 ? 24 : 16,
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
@@ -239,7 +243,7 @@ export default function Events() {
                   >
                     {new Date(e.ingested_at).toLocaleString()}
                   </td>
-                  <td style={{ ...thTd, textAlign: "right" }}>
+                  <td style={{ ...thTd, textAlign: "right", paddingRight: 24 }}>
                     <Link
                       to={`/events/${e.id}`}
                       style={{

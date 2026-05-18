@@ -102,7 +102,7 @@ export default function Events() {
                   background: "var(--muted)",
                 }}
               >
-                {["ID", "Type", "Deliveries", "Ingested"].map((h) => (
+                {["ID", "Type", "Deliveries", "Ingested", ""].map((h) => (
                   <th
                     key={h}
                     style={{
@@ -238,6 +238,48 @@ export default function Events() {
                     }}
                   >
                     {new Date(e.ingested_at).toLocaleString()}
+                  </td>
+                  <td style={{ ...thTd, textAlign: "right" }}>
+                    <Link
+                      to={`/events/${e.id}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "6px 12px",
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: "var(--primary)",
+                        background: "transparent",
+                        border: "1px solid var(--border)",
+                        borderRadius: "var(--radius)",
+                        textDecoration: "none",
+                        transition: "all 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "var(--secondary)";
+                        e.currentTarget.style.borderColor = "var(--primary)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.borderColor = "var(--border)";
+                      }}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      View
+                    </Link>
                   </td>
                 </tr>
               ))}

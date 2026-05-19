@@ -4,10 +4,20 @@ import { listSubscriptions, createSubscription, disableSubscription } from '../.
 
 const CreateSubscriptionSchema = z.object({
   url: z.string().url('must be a valid URL'),
+  /** Optional HMAC signing secret. When present, each delivery includes x-webhook-signature. */
   secret: z.string().min(1).optional(),
+  /** Glob-style event type filters. Defaults to ['*'] (receive all events). */
   event_types: z.array(z.string().min(1)).min(1).default(['*']),
 });
 
+/**
+ * Subscriptions router — CRUD for webhook subscriptions.
+ *
+ * GET    /     List all active subscriptions.
+ * POST   /     Create a new subscription. event_types supports exact match,
+ *              wildcard ('*'), and prefix globs ('order.*').
+ * DELETE /:id  Soft-delete: sets active=0. Does not purge pending attempts.
+ */
 export function subscriptionsRouter(): Router {
   const router = Router();
 

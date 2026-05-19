@@ -1,6 +1,18 @@
 import { getDb } from '../database';
 import { v4 as uuid } from 'uuid';
 
+/**
+ * A single delivery attempt for one (event, subscription) pair.
+ *
+ * Status machine:
+ *   pending → in_flight → delivered
+ *                       → pending   (retry via scheduleRetry)
+ *                       → dead      (max attempts exceeded or non-retryable error)
+ *   dead    → pending               (manual requeue via requeueDeadAttempt)
+ *
+ * claimed_at records when the worker picked up the row; the stale-inflight
+ * sweeper uses it (not created_at) to detect abandoned in_flight rows.
+ */
 export interface DeliveryAttempt {
   id: string;
   event_id: string;
@@ -26,7 +38,13 @@ export function getAttemptsByEvent(eventId: string): DeliveryAttempt[] {
   ).all(eventId) as DeliveryAttempt[];
 }
 
-// Atomic claim: transaction ensures no two concurrent calls claim the same rows.
+/**
+ * Atomically claims up to batchSize pending attempts whose next_attempt_at is due.
+ *
+ * The SELECT + UPDATE runs inside a single SQLite transaction to prevent two
+ * concurrent callers (e.g. two worker ticks) from claiming the same rows.
+ * SQLite's writer lock guarantees only one transaction can commit at a time.
+ */
 export function claimPendingBatch(batchSize: number): DeliveryAttempt[] {
   const now = Date.now();
 
@@ -61,6 +79,7 @@ export function markDelivered(id: string): void {
   `).run(Date.now(), id);
 }
 
+/** Sets status to 'failed'. Used for transient failures that will be retried. */
 export function markFailed(id: string, statusCode: number | null, error: string | null): void {
   getDb().prepare(`
     UPDATE delivery_attempts
@@ -69,6 +88,7 @@ export function markFailed(id: string, statusCode: number | null, error: string 
   `).run(statusCode, error, id);
 }
 
+/** Sets status to 'dead'. The attempt will not be retried automatically. */
 export function markDead(id: string, statusCode: number | null, error: string | null): void {
   getDb().prepare(`
     UPDATE delivery_attempts
@@ -77,6 +97,12 @@ export function markDead(id: string, statusCode: number | null, error: string | 
   `).run(statusCode, error, id);
 }
 
+/**
+ * Reschedules a failed attempt for future retry.
+ *
+ * @param nextAt        Unix ms timestamp when the attempt should next be eligible.
+ * @param attemptNumber Incremented attempt counter, stored for backoff calculation.
+ */
 export function scheduleRetry(
   id: string,
   nextAt: number,
@@ -92,7 +118,14 @@ export function scheduleRetry(
   `).run(nextAt, attemptNumber, statusCode, error, id);
 }
 
-// Sweeper: resets rows stuck in_flight using claimed_at (not created_at).
+/**
+ * Sweeper: resets in_flight rows whose claimed_at exceeds timeoutMs.
+ *
+ * Keyed on claimed_at (not created_at) so only rows that are actually stuck
+ * mid-flight are reset — old but delivered rows are unaffected.
+ *
+ * Returns the number of rows reset.
+ */
 export function resetStaleInflight(timeoutMs: number): number {
   const cutoff = Date.now() - timeoutMs;
   const result = getDb().prepare(`
@@ -103,6 +136,10 @@ export function resetStaleInflight(timeoutMs: number): number {
   return result.changes;
 }
 
+/**
+ * Resets a dead attempt to pending for immediate retry.
+ * Resets attempt_number to 0 so the full retry budget is available again.
+ */
 export function requeueDeadAttempt(id: string): void {
   getDb().prepare(`
     UPDATE delivery_attempts
@@ -113,7 +150,11 @@ export function requeueDeadAttempt(id: string): void {
   `).run(Date.now(), id);
 }
 
-// Transactional fanout: insert event + all delivery attempts atomically.
+/**
+ * Atomically inserts one event row and one pending delivery_attempt per
+ * matching subscription. Both happen in a single transaction so a crash
+ * between them can't produce orphaned events with no attempts.
+ */
 export function createEventWithAttempts(
   eventId: string,
   eventType: string,

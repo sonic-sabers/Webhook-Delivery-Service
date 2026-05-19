@@ -1,6 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import { httpLogger, c } from '../../logging/logger';
 
+/**
+ * HTTP request/response logger middleware.
+ *
+ * Logs an inbound request immediately (debug level), then logs the outbound
+ * response on the 'finish' event with duration and status-based log level.
+ *
+ * Uses req.originalUrl (not req.path) to preserve the full path including the
+ * Express router prefix — req.path is stripped by sub-routers to just "/".
+ *
+ * Honours an incoming x-request-id header for distributed tracing; generates
+ * a UUID when absent and echoes it back in the response header.
+ */
 export function requestLogger(req: Request, res: Response, next: NextFunction): void {
   const start = Date.now();
   const reqId = (req.headers['x-request-id'] as string) ?? crypto.randomUUID();
@@ -14,7 +26,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     `${c.method(req.method)} ${c.path(url)} ${c.id(reqId)} ← req`
   );
 
-  // Capture response body by wrapping res.json
+  // Wrap res.json to capture the response body for structured logging on finish.
   let responseBody: unknown;
   const originalJson = res.json.bind(res);
   res.json = (body: unknown) => {
@@ -35,7 +47,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
   next();
 }
 
-// Strip secret/key fields from logged bodies
+/** Redacts sensitive fields from request bodies before they reach the log sink. */
 function sanitizeBody(body: unknown): unknown {
   if (!body || typeof body !== 'object') return body;
   const safe = { ...(body as Record<string, unknown>) };

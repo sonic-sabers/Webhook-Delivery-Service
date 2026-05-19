@@ -4,9 +4,12 @@ import { v4 as uuid } from 'uuid';
 export interface Subscription {
   id: string;
   url: string;
+  /** HMAC signing secret, or null if this subscription has no signature verification. */
   secret: string | null;
+  /** JSON-encoded string[]. Use JSON.parse before passing to matchesEventType. */
   event_types: string;
   created_at: number;
+  /** SQLite stores booleans as 0/1 integers. active=0 means soft-deleted. */
   active: number;
 }
 

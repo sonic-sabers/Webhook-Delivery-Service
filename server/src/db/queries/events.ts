@@ -3,10 +3,15 @@ import { getDb } from "../database";
 export interface WebhookEvent {
   id: string;
   type: string;
+  /** JSON-serialised payload stored as TEXT in SQLite. Callers must JSON.parse before use. */
   payload: string;
   ingested_at: number;
 }
 
+/**
+ * Aggregated view of an event with per-status delivery attempt counts.
+ * 'pending' includes both pending and in_flight rows (worker has it or will pick it up).
+ */
 export interface EventSummary extends WebhookEvent {
   total_attempts: number;
   delivered: number;

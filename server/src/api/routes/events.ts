@@ -16,6 +16,24 @@ const IngestSchema = z.object({
   payload: z.unknown().default({}),
 });
 
+/**
+ * Events router — handles event ingestion, inspection, and manual retry.
+ *
+ * POST /           Ingest a new event. Fans out delivery attempts to every
+ *                  active subscription whose event_types pattern matches.
+ *                  Returns 202 immediately; delivery is async via the worker.
+ *
+ * GET  /           List the 50 most recent events with aggregated attempt counts.
+ *
+ * GET  /:id        Fetch a single event with its full delivery attempt history.
+ *
+ * POST /:id/retry  Re-enqueue a dead attempt for immediate retry. The event_id
+ *                  check prevents cross-event attempt manipulation.
+ *
+ * @param queue       Queue adapter used to re-enqueue dead attempts.
+ * @param maxAttempts Stored on each attempt row; worker reads it to decide
+ *                    when to stop retrying and mark the attempt dead.
+ */
 export function eventsRouter(queue: IQueue, maxAttempts: number): Router {
   const router = Router();
 
@@ -28,6 +46,8 @@ export function eventsRouter(queue: IQueue, maxAttempts: number): Router {
     const { type, payload } = parsed.data;
     const eventId = uuid();
 
+    // Fan-out: find all active subscriptions that match this event type,
+    // then atomically insert the event + one pending attempt per subscription.
     const subs = listSubscriptions();
     const matchingIds = subs
       .filter((sub) => matchesEventType(JSON.parse(sub.event_types), type))
@@ -67,6 +87,7 @@ export function eventsRouter(queue: IQueue, maxAttempts: number): Router {
       return;
     }
     const attempt = getAttempt(parsed.data.attemptId);
+    // Guard: ensure the attempt belongs to the event in the URL.
     if (!attempt || attempt.event_id !== req.params.id) {
       res.status(404).json({ error: "attempt not found" });
       return;

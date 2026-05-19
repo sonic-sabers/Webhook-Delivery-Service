@@ -2,12 +2,24 @@ import { signPayload } from '../signing/hmac';
 import { deliveryLogger, c } from '../logging/logger';
 
 export interface DeliveryResult {
+  /** HTTP status code from the subscriber, or null on network/timeout error. */
   statusCode: number | null;
+  /** Error message string on failure, null on success. */
   error: string | null;
   success: boolean;
   shouldRetry: boolean;
 }
 
+/**
+ * Maps an HTTP status code to delivery outcome.
+ *
+ * Retry policy:
+ *   null (timeout/network) → retry — transient infrastructure failure
+ *   2xx                    → success
+ *   408, 429               → retry — timeout and rate-limit are transient
+ *   4xx (other)            → no retry — caller error, retrying won't help
+ *   5xx / unexpected       → retry — server error, may recover
+ */
 export function classifyResponse(statusCode: number | null): { success: boolean; shouldRetry: boolean } {
   if (statusCode === null) return { success: false, shouldRetry: true };
   if (statusCode >= 200 && statusCode < 300) return { success: true, shouldRetry: false };
@@ -16,6 +28,19 @@ export function classifyResponse(statusCode: number | null): { success: boolean;
   return { success: false, shouldRetry: true }; // 5xx and anything unexpected
 }
 
+/**
+ * Makes a single HTTP POST delivery attempt to a subscriber endpoint.
+ *
+ * Outbound headers:
+ *   x-webhook-id          — stable event ID (same across all retries)
+ *   x-webhook-delivery-id — unique per attempt (useful for idempotency on subscriber side)
+ *   x-webhook-signature   — HMAC-SHA256 signature (only when subscription has a secret)
+ *
+ * Network errors and AbortController timeouts are caught and returned as
+ * shouldRetry=true results so the worker can schedule a retry.
+ *
+ * @param timeoutMs  Max ms to wait for a response before aborting. Default 5 s.
+ */
 export async function deliverPayload(
   url: string,
   secret: string | null,

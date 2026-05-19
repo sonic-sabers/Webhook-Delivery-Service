@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
+/**
+ * Simple shared-secret authentication for all /api routes.
+ *
+ * Clients must send `x-admin-key: <value>` matching the ADMIN_KEY env var.
+ * Defaults to "secret" in development; always set a strong value in production.
+ */
 export function adminAuth(
   req: Request,
   res: Response,

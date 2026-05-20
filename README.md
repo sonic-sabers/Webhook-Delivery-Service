@@ -64,6 +64,10 @@ npm test         # runs vitest in server/
 
 ## Screenshots
 
+### System Architecture
+
+![Flow Diagram](./public/screenshots/FlowDiagram.png)
+
 ### Subscriptions Dashboard
 
 ![Subscriptions](./public/screenshots/Subscriptions.png)

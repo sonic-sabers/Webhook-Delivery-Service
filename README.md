@@ -158,3 +158,47 @@ curl -X POST http://localhost:3000/api/events/<event_id>/retry \\
 -H 'x-admin-key: secret' \\
 -H 'content-type: application/json' \\
 -d '{"attemptId":"<attempt_id>"}'
+
+### Create a subscription with HMAC signing secret
+
+curl -X POST http://localhost:3000/api/subscriptions \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"url":"https://httpbin.org/post","secret":"mysigningsecret","event_types":["order.created","order.updated"]}'
+
+### Create a subscription with prefix wildcard filter
+
+curl -X POST http://localhost:3000/api/subscriptions \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"url":"https://httpbin.org/post","event_types":["order.*"]}'
+
+### Delete (disable) a subscription
+
+curl -X DELETE http://localhost:3000/api/subscriptions/<subscription_id> \\
+-H 'x-admin-key: secret'
+
+### Ingest an event matching prefix subscribers
+
+curl -X POST http://localhost:3000/api/events \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"type":"order.shipped","payload":{"order_id":456,"tracking":"1Z999"}}'
+
+### Ingest an event with no matching subscriptions (queued: 0)
+
+curl -X POST http://localhost:3000/api/events \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"type":"unsubscribed.event","payload":{}}'
+
+### Bad request — missing event type (returns 400)
+
+curl -X POST http://localhost:3000/api/events \\
+-H 'x-admin-key: secret' \\
+-H 'content-type: application/json' \\
+-d '{"payload":{"foo":"bar"}}'
+
+### Unauthorized — missing admin key (returns 401)
+
+curl http://localhost:3000/api/subscriptions

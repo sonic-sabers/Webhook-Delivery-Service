@@ -62,11 +62,16 @@ export default function Events() {
             style={{
               padding: "6px 12px",
               fontSize: 12,
-              background: "var(--secondary)",
-              color: "var(--secondary-foreground)",
+              background: "var(--background)",
+              color: "var(--foreground)",
+              border: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
             }}
           >
-            {refreshing ? "⟳" : "↻ Refresh"}
+            <span style={{ display: "inline-block", transition: "transform 0.4s", transform: refreshing ? "rotate(360deg)" : "none" }}>↻</span>
+            {refreshing ? "Refreshing…" : "Refresh"}
           </button>
         </div>
       </div>

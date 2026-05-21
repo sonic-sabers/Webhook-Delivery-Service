@@ -3,6 +3,7 @@ import { initDb } from './db/database';
 import { SqliteQueue } from './queue/SqliteQueue';
 import { createApp } from './api/app';
 import { startWorker } from './worker/worker';
+import { logger } from './logging/logger';
 
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
 const DB_PATH = process.env.DB_PATH ?? './data/webhooks.db';
@@ -17,11 +18,11 @@ const app = createApp(queue, MAX_ATTEMPTS);
 const stopWorker = startWorker(queue, WORKER_INTERVAL_MS, INFLIGHT_TIMEOUT_MS);
 
 const server = app.listen(PORT, () => {
-  console.log(`[server] listening on :${PORT}`);
+  logger.info({ port: PORT }, `server listening on :${PORT}`);
 });
 
 const shutdown = () => {
-  console.log('[server] shutting down');
+  logger.info('server shutting down');
   stopWorker();
   server.close(() => process.exit(0));
 };

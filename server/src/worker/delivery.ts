@@ -1,4 +1,5 @@
 import { signPayload } from '../signing/hmac';
+import { deliveryLogger, c } from '../logging/logger';
 
 export interface DeliveryResult {
   statusCode: number | null;
@@ -37,6 +38,10 @@ export async function deliverPayload(
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const start = Date.now();
+  const log = deliveryLogger.child({ attemptId: c.id(attemptId), eventId: c.id(eventId), eventType });
+
+  log.debug({ url }, `→ POST ${c.url(url)} [${eventType}]`);
 
   try {
     const res = await fetch(url, {
@@ -45,10 +50,18 @@ export async function deliverPayload(
       body,
       signal: controller.signal,
     });
+    const ms = Date.now() - start;
     const { success, shouldRetry } = classifyResponse(res.status);
+    const level = success ? 'info' : shouldRetry ? 'warn' : 'error';
+    log[level](
+      { url, status: res.status, ms },
+      `← ${c.status(res.status)} ${c.url(url)} ${c.ms(ms)}`
+    );
     return { statusCode: res.status, error: null, success, shouldRetry };
   } catch (err: unknown) {
+    const ms = Date.now() - start;
     const error = err instanceof Error ? err.message : String(err);
+    log.error({ url, error, ms }, `✗ delivery failed ${c.url(url)} — ${error} ${c.ms(ms)}`);
     return { statusCode: null, error, success: false, shouldRetry: true };
   } finally {
     clearTimeout(timer);

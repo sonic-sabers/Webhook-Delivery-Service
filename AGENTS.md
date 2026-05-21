@@ -1,66 +1,76 @@
 <claude-mem-context>
 # Memory Context
 
-# [Fibr] recent context, 2026-05-18 8:50pm GMT+5:30
+# [Fibr] recent context, 2026-05-21 12:23am GMT+5:30
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 40 obs (11,542t read) | 403,509t work | 97% savings
+Stats: 50 obs (17,915t read) | 945,709t work | 98% savings
 
-### May 17, 2026
-136 11:49p 🔵 Engineering Take-Home: Webhook Delivery Service Requirements
-137 11:54p 🔵 Webhook Delivery Service Take-Home Assignment Scoped
 ### May 18, 2026
-138 12:00a 🟣 Complete Implementation Plan Written for Webhook Delivery Service
-S55 Execute webhook delivery service implementation plan — Task 1 scaffold in progress (May 18 at 12:08 AM)
-S56 Engineering take-home: build webhook delivery service — full implementation completed across multiple sessions (May 18 at 12:16 AM)
-141 12:16a 🔵 Webhook Delivery Service Engineering Take-Home Spec
-139 12:17a 🔵 Fibr Project Initial State — No .gitignore
-140 " ✅ .gitignore Added to Fibr Project
-142 10:04a 🔵 Webhook Delivery Service — Engineering Take-Home Spec
-143 10:23a 🟣 Delivery Worker Core — classifyResponse + deliverPayload + startWorker
-144 " 🟣 Admin Auth Middleware — x-admin-key header check
-145 " 🟣 API Routes — Subscriptions, Events, Manual Retry
-146 " 🟣 Express App Factory — createApp with SPA Static Serving
-147 10:24a 🟣 Entry Point — src/index.ts with Graceful Shutdown
-148 " 🟣 API Integration Tests — auth, subscriptions, event fanout, attempt detail
-149 " 🔴 Express v5 Wildcard Route Syntax Fix — `/{*path}` not `*`
-150 " 🟣 Full Test Suite Green — 30/30 Passing Across 5 Test Files
-151 10:25a ✅ React SPA Dependencies Installed
-152 " 🟣 Vite Config for React SPA — Proxy to Backend, Build to client/dist
-153 " 🟣 React SPA API Client — Typed fetch wrapper with x-admin-key
-154 " 🟣 React SPA Shell — main.tsx, App.tsx with 4-route layout
-155 " 🟣 Subscriptions Dashboard Page — create, list, disable
-156 10:26a 🟣 Events List Page — last 50 events with drill-down links
-157 " 🟣 Event Detail Page — delivery attempts table with manual retry button
-158 " 🟣 React SPA Vite Build — Clean Production Build to client/dist
-159 " ✅ README.md Written — run instructions, feature list, known gaps, env var table
-160 " ✅ DECISIONS.md Written — All 5 Required Topics with Tradeoff Rationale
-161 " 🔵 README.md Write Not Persisting — File Shows Stale Content After Multiple Writes
-162 10:27a ✅ AI_LOG.md Written — 6 Entries Documenting Kept/Modified/Rejected AI Suggestions
-163 " 🟣 Project Complete — All Deliverables Written, 30/30 Tests Passing
-S57 Webhook delivery service take-home — implementation complete, verifying git state before committing (May 18 at 10:28 AM)
-164 10:29a 🔵 Git Status — README.md Write Did Persist, Repo Has No Prior Commits
-S58 Engineering take-home: webhook delivery service — complete implementation + code review + fixes in progress (May 18 at 10:29 AM)
-165 10:30a 🔵 Complete File Inventory Confirmed — 17 src files, 5 test files, 6 client files
-S59 Webhook delivery service: post-review fixes actively being applied (May 18 at 10:30 AM)
-S60 Webhook delivery service: all code review fixes applied, 30/30 tests passing, ready to commit (May 18 at 10:32 AM)
-S61 Engineering take-home document polish: DECISIONS.md rewritten (second parallel subagent batch), env/client config explored (May 18 at 10:33 AM)
-166 10:33a ✅ DECISIONS.md rewritten for readability
-S62 Engineering take-home polish: env files created, DECISIONS.md rewritten, code review fixes all applied (May 18 at 10:45 AM)
-167 10:45a 🟣 Created .env and client/.env files for local development
 S63 Webhook delivery service take-home — project restructure to server/client monorepo layout and post-restructure fixes (May 18 at 10:46 AM)
-168 11:09a 🔄 Project restructured: src/ and tests/ moved into server/ directory
-169 11:10a 🔄 Project directory restructured: server/ subdirectory created
-170 11:12a 🔄 Monorepo test delegation: root test script delegates to server subpackage
-171 " 🔴 server/package.json test script vitest config path corrected after config relocation
+S64 Webhook delivery service take-home — monorepo restructure complete, test delegation wired end-to-end (May 18 at 11:10 AM)
 172 8:42p 🔵 30/30 tests passing from server/ directory after config path fixes
-S64 Webhook delivery service take-home — monorepo restructure complete, test delegation wired end-to-end (May 18 at 8:42 PM)
+S65 Webhook Delivery Service — project build verification, .env config, and dashboard UI polish (May 18 at 8:42 PM)
+194 " ✅ Monorepo restructure REVERTED — project returned to flat layout at root
 173 8:49p 🔵 Fibr Project Repository State Discovered
 174 8:50p 🔵 Fibr Webhook Service Full Architecture Mapped
 175 " ✅ README.md Expanded from Stub to Full Project Docs
+176 " 🔵 Dependency Install State Incomplete — Client and Root node_modules Missing
+177 " 🚨 ADMIN_KEY Defaults to "secret" in Both Server and Client Code
+178 " 🔵 Server Entry Point: Graceful Shutdown and Single-Process Architecture Confirmed
+179 8:51p 🔵 Server node_modules Contains Client Dependencies — Structural Install Issue
+180 " 🔵 Test Files Exist as Both .ts Source and Compiled .js — gitignore Gap
+181 " 🔵 AI Implementation Plan Document Exists in docs/
+182 " 🔵 Full Server Source Code Reviewed — Core Architecture Confirmed
+183 " 🔴 Retry Endpoint Calls requeueDead on Both "failed" and "dead" Status Rows
+184 " 🔵 Event Ingest Loads All Active Subscriptions — O(n) Fan-out Without DB Filter
+185 " 🔵 DELETE /subscriptions/:id Returns 204 Regardless of Whether ID Exists
+186 " 🔵 tsconfig rootDir/include Mismatch Causes tsc Build Failure for Tests
+189 " 🔵 server/package-lock.json Root Was Originally Unified — Explains node_modules Pollution
+187 8:53p 🔵 api.test.ts All 5 Tests Fail — Supertest Cannot Bind Socket (EPERM: listen 0.0.0.0)
+188 " 🔵 npm run build Fails — client/node_modules Missing, vite Not Found
+190 10:09p 🔵 All 30 Tests Pass with Network Permissions — Previous Failures Were Sandbox-Only
+191 " 🔵 Server tsc Build Fails — Two Confirmed Errors: rootDir Violation + Deprecated moduleResolution
+193 10:13p ✅ README.md rewritten for monorepo layout with accurate setup and env var documentation
+195 10:17p ✅ package.json restored to flat single-package layout with all deps and flat scripts
+196 " ✅ client/vite.config.ts outDir restored to `../client/dist` for root-invocation pattern
+197 10:18p 🔵 CRITICAL: Source .ts files missing — src/ directories empty, only .js test files remain
+199 " 🔵 Confirmed: server/src/ does not exist — TypeScript source files completely absent
+198 " ✅ README.md rewritten to document monorepo structure with three-step install
+200 10:20p 🔵 Git has 5 commits but NONE contain source .ts files — source code never committed, permanently lost
+201 10:21p 🔵 Webhook Delivery Service Take-Home Assignment Analyzed
+S66 Webhook Service Dashboard — complete dark theme UI polish across all pages, build verification (May 18 at 10:30 PM)
+202 10:30p 🟣 Subscriptions Dashboard Page Fully Redesigned with Dark Theme UI
+203 " 🔵 EventDetail Page Reveals Delivery Attempt State Machine
+204 10:31p 🟣 All Three Dashboard Pages Redesigned to Dark Theme — UI Complete
+S67 Complete light theme migration — all client pages converted from dark hardcoded hex to shadcn-style CSS variable system (May 18 at 10:31 PM)
+205 10:32p ✅ Dashboard Theme Switched from Dark to Light — CSS Variables System Added
+206 " ✅ App.tsx Header Migrated to Light Theme CSS Variables with Frosted Glass Effect
+207 " ✅ Subscriptions.tsx Migrated to Light Theme CSS Variables
+208 10:33p ✅ Events.tsx Migrated to Light Theme CSS Variables
+209 " ✅ EventDetail.tsx Fully Migrated to Light Theme — StatusBadge Gets Explicit Borders
+S68 Auth middleware fix — added fallback default 'secret' when ADMIN_KEY env var missing, plus full stack build verification (May 18 at 10:34 PM)
+210 10:35p 🔵 Admin Key Config Verified Consistent Across Client Build and Server
+211 " 🔵 Server Entry Point and Auth Middleware Architecture Confirmed
+S69 User requested logs for Fibr project; accessed AI_LOG.md containing 6 architectural decision entries for webhook delivery system (May 18 at 10:35 PM)
+S72 User requested logs; explored log locations and discovered how to run application for live output (May 18 at 11:32 PM)
+S70 User explored project structure and searched for available logs in Fibr project (May 18 at 11:32 PM)
+S71 User searched for log files in Fibr project; confirmed no persistent .log files exist (May 18 at 11:32 PM)
+### May 21, 2026
+233 12:05a 🔵 Fibr Webhook Delivery System — Full Project Structure
+234 12:06a 🔵 Fibr Design Decisions — SQLite, Worker, Retry, Signing, Dashboard
+235 " 🔵 Fibr Server Dependency Stack and Entry Point
+236 " 🔵 Fibr API Layer — Auth Middleware, Routes, Zod Validation
+237 " 🔵 Fibr Database Schema and Query Layer
+238 12:08a 🔵 IQueue Interface and SqliteQueue Implementation — Clean Adapter Pattern
+239 " 🔵 Worker, Delivery, and Backoff Implementation Details
+240 " 🔵 HMAC Signing and Event Type Matching Implementation
+241 " 🔵 Test Suite Run — API Tests Fail with EPERM: listen on 0.0.0.0
+242 " 🔵 Client SPA — React 19 with Inline Styles, Vite Proxy, and CSS Variables
+243 12:11a 🔵 Fibr Project — Original Engineering Take-Home Assignment Requirements
 
-Access 404k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 946k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
